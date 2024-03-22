@@ -12,7 +12,10 @@ WHERE name LIKE 'new'
 );
 
 --Оновити статус конкретного завдання.
-UPDATE tasks SET status_id = 2 WHERE id = 1;
+UPDATE tasks SET status_id = (SELECT id
+FROM status
+WHERE name LIKE 'in progress') 
+WHERE id = 2;
 
 --Отримати список користувачів, які не мають жодного завдання.
 SELECT fullname
@@ -28,7 +31,9 @@ VALUES ('new task', 5, 1);
 --Отримати всі завдання, які ще не завершено. 
 SELECT title
 FROM tasks
-WHERE status_id != 3; 
+WHERE status_id != (SELECT id
+FROM status
+WHERE name LIKE 'completed'); 
 
 --Видалити конкретне завдання.
 DELETE FROM tasks WHERE id = 40;
@@ -55,13 +60,16 @@ WHERE u.email LIKE'%@example.com';
 --Отримати список завдань, що не мають опису.
 SELECT title
 FROM tasks
-WHERE description is NULL;
+WHERE description IS NULL
+OR description = '';
 
 --Вибрати користувачів та їхні завдання, які є у статусі 'in progress'.
 SELECT u.fullname, t.title 
 FROM tasks as t
 INNER JOIN users AS u ON u.id = t.user_id
-WHERE t.status_id = 2; 
+WHERE t.status_id = (SELECT id
+FROM status
+WHERE name LIKE 'in progress'); 
 
 --Отримати користувачів та кількість їхніх завдань.
 SELECT u.fullname, COUNT(t.id) as tasks
